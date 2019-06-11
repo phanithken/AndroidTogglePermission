@@ -8,8 +8,12 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
+import android.util.Log
 import android.widget.Toast
 import android.widget.ToggleButton
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.iid.FirebaseInstanceId
+import com.google.firebase.messaging.FirebaseMessaging
 
 class MainActivity : AppCompatActivity() {
 
@@ -17,11 +21,36 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+//        FirebaseMessaging.getInstance().unsubscribeFromTopic("GENERAL")
+        FirebaseInstanceId.getInstance().instanceId
+            .addOnCompleteListener(OnCompleteListener { task ->
+                if (!task.isSuccessful) {
+                    Log.w("FirebaseInstance", "getInstanceId failed", task.exception)
+                    return@OnCompleteListener
+                }
+
+                // Get new Instance ID Token
+                val token = task.result?.token
+
+                // Log
+                Log.d("TOKEN", token)
+            })
+
         val bluetoothToggle: ToggleButton = findViewById(R.id.bluetooth)
         val locationToggle: ToggleButton = findViewById(R.id.location)
+        val notificationToggle: ToggleButton = findViewById(R.id.notification)
+
         val bluetoothAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
 
         // set onCheckListener to toggle
+        notificationToggle.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                FirebaseMessaging.getInstance().subscribeToTopic("GENERAL")
+            } else {
+                FirebaseMessaging.getInstance().unsubscribeFromTopic("GENERAL")
+            }
+        }
+
         bluetoothToggle.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 if (bluetoothAdapter != null) {
