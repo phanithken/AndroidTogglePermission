@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">TogglePermission</string>
+    <string name="label_bluetooth">Bluetooth</string>
+    <string name="label_location">Location</string>
+</resources>
